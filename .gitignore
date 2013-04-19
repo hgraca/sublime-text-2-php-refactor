@@ -1,0 +1,24 @@
+
+#mac files
+.DS_Store
+
+#eclipse files
+/temp.wsdl
+/.externalToolBuilders
+.settings/
+.project
+.buildpath
+
+#sublime files
+*.sublime*
+.tags*
+TODO
+
+#phpstorm
+.idea
+
+#git files
+*.orig
+
+#composer files
+composer.lock

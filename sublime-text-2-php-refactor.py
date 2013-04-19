@@ -16,7 +16,12 @@ class ExtractCommand(sublime_plugin.TextCommand):
         # self.view.insert(edit, 0, "php refactor.phar extract-method <file> <line-range> <new-method>|colordiff")
         # self.view.insert(edit, 0, "php refactor.phar extract-method <file> <line-range> <new-method>|patch -p1")
         # self.view.insert(edit, 0, "php refactor.phar extract-method /tmp/test.php 8-8 add|colordiff")
-        self.view.insert(edit, 0, "php refactor.phar extract-method " + self.view.file_name() + " 8-8 add|colordiff")
+        sels = self.view.sel()
+        for sel in sels:
+            firstLine = self.view.rowcol(sel.begin())[0]
+            lastLine = self.view.rowcol(sel.end())[0]
+            lineRange = str(firstLine) + "-" + str(lastLine)
+            print "php refactor.phar extract-method " + self.view.file_name() + " " + lineRange + " add|colordiff"
         return ''
 
 

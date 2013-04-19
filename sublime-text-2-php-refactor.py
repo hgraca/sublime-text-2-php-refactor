@@ -29,7 +29,7 @@ Sintax of the external command:
 
 class RenameLocalVariableCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "php refactor.phar rename-local-variable " + self.view.file_name() + " 8-8 add|colordiff")
+        self.view.insert(edit, 0, "php refactor.phar rename-local-variable " + self.view.file_name() + " 8 $oldName $newName|colordiff")
 
 
 '''
@@ -41,7 +41,12 @@ Sintax of the external command:
 
 class OptimizeUseCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "php refactor.phar convert-local-to-instance-variable " + self.view.file_name() + " 8-8 add|colordiff")
+        self.view.insert(edit, 0, "php refactor.phar convert-local-to-instance-variable " + self.view.file_name() + " 8 $variable|colordiff")
+
+
+'''
+
+'''
 
 
 class ConvertLocalVariableToInstanceVariableCommand(sublime_plugin.TextCommand):
@@ -49,9 +54,19 @@ class ConvertLocalVariableToInstanceVariableCommand(sublime_plugin.TextCommand):
         self.view.insert(edit, 0, "ConvertLocalVariableToInstanceVariableCommand")
 
 
+'''
+
+'''
+
+
 class ConvertMagicValueToConstantCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.insert(edit, 0, "ConvertMagicValueToConstantCommand")
+
+
+'''
+
+'''
 
 
 class RenameMethodCommand(sublime_plugin.TextCommand):
@@ -59,14 +74,29 @@ class RenameMethodCommand(sublime_plugin.TextCommand):
         self.view.insert(edit, 0, "RenameMethodCommand")
 
 
+'''
+
+'''
+
+
 class RenameInstanceVariableCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.insert(edit, 0, "RenameInstanceVariableCommand")
 
 
+'''
+
+'''
+
+
 class RenameClassCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.insert(edit, 0, "RenameClassCommand")
+
+
+'''
+
+'''
 
 
 class RenameNamespaceCommand(sublime_plugin.TextCommand):

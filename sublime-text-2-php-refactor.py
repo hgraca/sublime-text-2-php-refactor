@@ -8,6 +8,41 @@ from os.path import dirname, realpath, basename
 
 
 '''
+Top level class for the plugin commands
+'''
+
+
+class Refactor():
+    REFACTOR = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
+
+    def execute(self, name, command, execute=False):
+        fileName = basename(self.view.file_name())
+
+        print 'Executing: ' + name + ' (' + command + ')'
+
+        p = subprocess.Popen(command, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        if p.stdout is not None:
+            msg = p.stdout.readlines()
+            msg = '\n'.join(msg)
+            if (False == execute):
+                outputWindow = self.getOutputWindow(name + '_' + fileName + '.diff')
+                edit = outputWindow.begin_edit()
+                outputWindow.insert(edit, 0, msg)
+                outputWindow.end_edit(edit)
+                outputWindow.set_read_only(True)
+            else:
+                print msg
+
+    def getOutputWindow(self, windowName, sintax='Diff'):
+        outputWindow = sublime.active_window().new_file()
+        outputWindow.set_name(windowName)
+        outputWindow.set_syntax_file('Packages/' + sintax + '/' + sintax + '.tmLanguage')
+        outputWindow.set_read_only(False)
+
+        return outputWindow
+
+
+'''
 Extract a range of lines into a new method and call this method from the original location.
 This refactoring automatically detects all necessary inputs and outputs from the function and generates the argument list and return statement accordingly.
 Sintax of the external command:
@@ -20,11 +55,7 @@ key bindings: ctrl +r +e +a (apply)
 '''
 
 
-class ExtractCommand(sublime_plugin.TextCommand):
-    # @TODO: create the commands ExtractDiffCommand and ExtractExecCommand
-
-    # name = 'extract diff'
-    # outputWindow = None
+class ExtractCommand(sublime_plugin.TextCommand, Refactor):
 
     def run(self, edit, execute=False):
         window = sublime.active_window()
@@ -36,39 +67,13 @@ class ExtractCommand(sublime_plugin.TextCommand):
         return ''
 
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
+        patch = ''
         if (True == execute):
-            execute = '|patch -b ' + filePath
-        else:
-            execute = ''
+            patch = '|patch -b ' + filePath
 
-        # @TODO: this must be a top class constant (class Refactor, from where all commands inherit)
-        refactorFile = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
-        command = "php " + refactorFile + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + execute
-        self.performAction('extract_' + newFcName, command)
+        command = "php " + self.REFACTOR + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + patch
+        self.execute('extract_' + newFcName, command, execute)
 
-    # @TODO: create class Action(name, command)) with method execute(execute=False)
-    def performAction(self, name, command):
-        fileName = basename(self.view.file_name())
-
-        print 'Performing action: ' + name + ' (' + command + ')'
-
-        p = subprocess.Popen(command, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        if p.stdout is not None:
-            msg = p.stdout.readlines()
-            msg = '\n'.join(msg)
-            outputWindow = self.getOutputWindow(name + '_' + fileName + '.diff')
-            edit = outputWindow.begin_edit()
-            outputWindow.insert(edit, 0, msg)
-            outputWindow.end_edit(edit)
-            outputWindow.set_read_only(True)
-
-    def getOutputWindow(self, windowName, sintax='Diff'):
-        outputWindow = sublime.active_window().new_file()
-        outputWindow.set_name(windowName)
-        outputWindow.set_syntax_file('Packages/' + sintax + '/' + sintax + '.tmLanguage')
-        outputWindow.set_read_only(False)
-
-        return outputWindow
 
 '''
     def confirm(self):

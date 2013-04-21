@@ -14,3 +14,8 @@
 ## Usefull command lines
 
     ln -s ${PWD} ~/.config/sublime-text-2/Packages/PhpRefactor
+
+## Usefull sublime console lines
+
+    view.run_command('extract', {'execute': False})
+    view.run_command('extract', {'execute': True})

@@ -26,18 +26,24 @@ class ExtractCommand(sublime_plugin.TextCommand):
     # name = 'extract diff'
     # outputWindow = None
 
-    def run(self, edit):
+    def run(self, edit, execute=False):
         window = sublime.active_window()
         sels = self.view.sel()
         for sel in sels:
             firstLine = str(self.view.rowcol(sel.begin())[0] + 1)
             lastLine = str(self.view.rowcol(sel.end())[0] + 1)
-            window.show_input_panel("What is the new function name?", '', lambda newFcName: self.runCommandLine(self.view.file_name(), firstLine, lastLine, newFcName), None, None)
+            window.show_input_panel("What is the new function name?", '', lambda newFcName: self.runCommandLine(self.view.file_name(), firstLine, lastLine, newFcName, execute), None, None)
         return ''
 
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
-        command = "php refactor.phar extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName
-        print command
+        if (True == execute):
+            execute = '|patch -b ' + filePath
+        else:
+            execute = ''
+
+        # @TODO: this must be a class constant
+        refactorFile = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
+        command = "php " + refactorFile + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + execute
         self.performAction('extract_' + newFcName, command)
 
     # @TODO: create class Action(name, command)) with method execute(execute=False)
@@ -48,16 +54,9 @@ class ExtractCommand(sublime_plugin.TextCommand):
             print 'Action ' + name + ': No command supplied'
             return
 
-        originalWd = os.getcwd()
-        print 'originalWd: ' + originalWd
-        wd = sublime.packages_path() + "/sublime-text-2-php-refactor/lib"
-        if wd:
-            os.chdir(wd)
+        print 'Performing action: ' + name + ' (' + command + ')'
 
-        print 'Performing action: ' + name + ' (' + command + ') in ' + os.getcwd()
-
-        p = subprocess.Popen(command, cwd=wd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        os.chdir(originalWd)
+        p = subprocess.Popen(command, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         if p.stdout is not None:
             msg = p.stdout.readlines()
             msg = '\n'.join(msg)

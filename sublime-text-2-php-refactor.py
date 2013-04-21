@@ -41,7 +41,7 @@ class ExtractCommand(sublime_plugin.TextCommand):
         else:
             execute = ''
 
-        # @TODO: this must be a class constant
+        # @TODO: this must be a top class constant (class Refactor, from where all commands inherit)
         refactorFile = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
         command = "php " + refactorFile + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + execute
         self.performAction('extract_' + newFcName, command)
@@ -49,10 +49,6 @@ class ExtractCommand(sublime_plugin.TextCommand):
     # @TODO: create class Action(name, command)) with method execute(execute=False)
     def performAction(self, name, command):
         fileName = basename(self.view.file_name())
-
-        if not command:
-            print 'Action ' + name + ': No command supplied'
-            return
 
         print 'Performing action: ' + name + ' (' + command + ')'
 

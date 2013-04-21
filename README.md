@@ -8,7 +8,7 @@
 
 ## Dependences
 
-    This plugin depends on the php tool php-refactoring-browser, which can be downloaded here:
+    This plugin depends on the php tool php-refactoring-browser. The latest version can be downloaded here:
         http://qafoolabs.github.com/php-refactoring-browser/assets/refactor.phar
 
 ## Usefull command lines

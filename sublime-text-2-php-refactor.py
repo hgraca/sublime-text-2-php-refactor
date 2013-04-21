@@ -1,10 +1,37 @@
 # coding=utf8
 import sublime
 import sublime_plugin
-import functools
 import os
 import subprocess
-from os.path import dirname, realpath, basename
+from os.path import basename
+
+
+'''
+    Global function to send system messages
+'''
+
+
+def msg(msg):
+    print "[PHP Refactor] %s" % msg
+
+
+'''
+    Plugin preferences
+'''
+
+
+class Prefs:
+
+    @staticmethod
+    def load():
+        settings = sublime.load_settings('sublime-text-2-php-refactor.sublime-settings')
+        Prefs.backup = settings.get('backup')
+        msg("Backup file before applying changes? %s" % Prefs.backup)
+        Prefs.confirm = settings.get('confirm')
+        msg("Confirm action before applying changes? %s" % Prefs.confirm)
+
+
+Prefs.load()
 
 
 '''
@@ -16,30 +43,53 @@ class Refactor():
     REFACTOR = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
 
     def execute(self, name, command, execute=False):
-        fileName = basename(self.view.file_name())
 
-        print 'Executing: ' + name + ' (' + command + ')'
+        msg('Executing: ' + name + ' (' + command + ')')
 
         p = subprocess.Popen(command, cwd=os.getcwd(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         if p.stdout is not None:
-            msg = p.stdout.readlines()
-            msg = '\n'.join(msg)
+            text = p.stdout.readlines()
+            text = '\n'.join(text)
             if (False == execute):
-                outputWindow = self.getOutputWindow(name + '_' + fileName + '.diff')
-                edit = outputWindow.begin_edit()
-                outputWindow.insert(edit, 0, msg)
-                outputWindow.end_edit(edit)
-                outputWindow.set_read_only(True)
+                fileName = basename(self.view.file_name())
+                title = name + '_' + fileName + '.diff'
+                self.view_in_tab(title, text)
             else:
-                print msg
+                msg(text)
+                self.view.run_command('revert')
 
-    def getOutputWindow(self, windowName, sintax='Diff'):
-        outputWindow = sublime.active_window().new_file()
-        outputWindow.set_name(windowName)
-        outputWindow.set_syntax_file('Packages/' + sintax + '/' + sintax + '.tmLanguage')
-        outputWindow.set_read_only(False)
+    def view_in_tab(self, title, text, syntax='Diff'):
+        # Helper function to display information in a tab.
+        tab = self.view.window().new_file()
+        _id = tab.buffer_id()
+        tab.set_name(title)
+        tab.set_scratch(_id)
+        tab.settings().set('gutter', True)
+        tab.settings().set('line_numbers', False)
+        tab.set_syntax_file('Packages/' + syntax + '/' + syntax + '.tmLanguage')
+        ed = tab.begin_edit()
+        tab.insert(ed, 0, text)
+        tab.end_edit(ed)
+        return tab, _id
 
-        return outputWindow
+    def confirm(self, on_confirm):
+        window = sublime.active_window()
+        backup = 'Off'
+        if (True == Prefs.backup):
+            backup = 'On'
+
+        yes = []
+        yes.append('Yes, apply patch.')
+        yes.append('Backups are: ' + backup)
+
+        no = []
+        no.append("No, don't apply patch")
+        no.append('Cancel the operation.')
+
+        if sublime.platform() == 'osx':
+            sublime.set_timeout(lambda: window.show_quick_panel([yes, no], on_confirm), 200)
+        else:
+            window.show_quick_panel([yes, no], on_confirm)
 
 
 '''
@@ -48,10 +98,6 @@ This refactoring automatically detects all necessary inputs and outputs from the
 Sintax of the external command:
     php refactor.phar extract-method <file> <line-range> <new-method>|colordiff
     php refactor.phar extract-method <file> <line-range> <new-method>|patch -b <file>
-
-package setting: -b (backup original file)
-key bindings: ctrl +r +e +d (diff)
-key bindings: ctrl +r +e +a (apply)
 '''
 
 
@@ -69,32 +115,18 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
         patch = ''
         if (True == execute):
-            patch = '|patch -b ' + filePath
+            backup = ' --no-backup-if-mismatch'
+            if (True == Prefs.backup):
+                backup = ' -b'
+            patch = '|patch' + backup + ' ' + filePath
 
         command = "php " + self.REFACTOR + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + patch
-        self.execute('extract_' + newFcName, command, execute)
 
-
-'''
-    def confirm(self):
-        window = sublime.active_window()
-        window.show_input_panel("BUG!", '', '', None, None)
-        window.run_command('hide_panel')
-
-        yes = []
-        yes.append('Yes, delete the selected items.')
-
-        no = []
-        no.append('No')
-        no.append('Cancel the operation.')
-        if sublime.platform() == 'osx':
-            sublime.set_timeout(lambda: window.show_quick_panel([yes, no], functools.partial(self.on_confirm)), 200)
+        if ((True == execute) and (True == Prefs.confirm)):
+            self.confirm(lambda x: self.execute('extract_' + newFcName, command, execute))
         else:
-            window.show_quick_panel([yes, no], functools.partial(self.on_confirm))
+            self.execute('extract_' + newFcName, command, execute)
 
-    def on_confirm(self):
-        print "confirmed"
-'''
 
 '''
 Rename a local variable from one to another name.
@@ -105,7 +137,7 @@ Sintax of the external command:
 
 class RenameLocalVariableCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "php refactor.phar rename-local-variable " + self.view.file_name() + " 8 $oldName $newName|colordiff")
+        msg("php refactor.phar rename-local-variable " + self.view.file_name() + " 8 $oldName $newName|colordiff")
 
 
 '''
@@ -117,7 +149,7 @@ Sintax of the external command:
 
 class OptimizeUseCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "php refactor.phar convert-local-to-instance-variable " + self.view.file_name() + " 8 $variable|colordiff")
+        msg("php refactor.phar convert-local-to-instance-variable " + self.view.file_name() + " 8 $variable|colordiff")
 
 
 '''
@@ -127,7 +159,7 @@ class OptimizeUseCommand(sublime_plugin.TextCommand):
 
 class ConvertLocalVariableToInstanceVariableCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "ConvertLocalVariableToInstanceVariableCommand")
+        msg("ConvertLocalVariableToInstanceVariableCommand")
 
 
 '''
@@ -137,7 +169,7 @@ class ConvertLocalVariableToInstanceVariableCommand(sublime_plugin.TextCommand):
 
 class ConvertMagicValueToConstantCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "ConvertMagicValueToConstantCommand")
+        msg("ConvertMagicValueToConstantCommand")
 
 
 '''
@@ -147,7 +179,7 @@ class ConvertMagicValueToConstantCommand(sublime_plugin.TextCommand):
 
 class RenameMethodCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "RenameMethodCommand")
+        msg("RenameMethodCommand")
 
 
 '''
@@ -157,7 +189,7 @@ class RenameMethodCommand(sublime_plugin.TextCommand):
 
 class RenameInstanceVariableCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "RenameInstanceVariableCommand")
+        msg("RenameInstanceVariableCommand")
 
 
 '''
@@ -167,7 +199,7 @@ class RenameInstanceVariableCommand(sublime_plugin.TextCommand):
 
 class RenameClassCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "RenameClassCommand")
+        msg("RenameClassCommand")
 
 
 '''
@@ -177,4 +209,4 @@ class RenameClassCommand(sublime_plugin.TextCommand):
 
 class RenameNamespaceCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.view.insert(edit, 0, "RenameNamespaceCommand")
+        msg("RenameNamespaceCommand")

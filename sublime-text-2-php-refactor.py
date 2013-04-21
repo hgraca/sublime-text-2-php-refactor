@@ -21,6 +21,7 @@ key bindings: ctrl +r +e +a (apply)
 
 
 class ExtractCommand(sublime_plugin.TextCommand):
+    # @TODO: create the commands ExtractDiffCommand and ExtractExecCommand
 
     # name = 'extract diff'
     # outputWindow = None

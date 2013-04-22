@@ -12,6 +12,7 @@
 #sublime files
 *.sublime-project
 *.sublime-workspace
+package-metadata.json
 .tags*
 TODO
 

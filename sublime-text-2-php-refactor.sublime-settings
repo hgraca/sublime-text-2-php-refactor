@@ -1,0 +1,6 @@
+{
+    // make a backup before applying changes ? true | false
+    "backup" : true,
+    // show a confirmation dialog before applying a patch ? true | false
+    "confirm" : true
+}

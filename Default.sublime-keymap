@@ -1,0 +1,4 @@
+[
+    { "keys": ["ctrl+shift+r", "ctrl+shift+1"], "command": "extract", "args": {"execute": false} },
+    { "keys": ["ctrl+shift+r", "ctrl+shift+2"], "command": "extract", "args": {"execute": true} }
+]

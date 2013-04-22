@@ -10,7 +10,8 @@
 .buildpath
 
 #sublime files
-*.sublime*
+*.sublime-project
+*.sublime-workspace
 .tags*
 TODO
 
@@ -22,3 +23,6 @@ TODO
 
 #composer files
 composer.lock
+
+#phyton compiled files
+*.pyc

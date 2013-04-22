@@ -1,0 +1,11 @@
+[
+    { "caption": "-" },
+    {
+        "caption": "PHP Refactor",
+        "children":
+        [
+            { "command": "extract", "args": {"execute": false}, "caption": "Extract Method - Diff" },
+            { "command": "extract", "args": {"execute": true}, "caption": "Extract Method - Patch" }
+        ]
+    }
+]

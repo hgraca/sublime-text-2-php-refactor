@@ -2,14 +2,16 @@
 
     A wrapper for the refactoring tool  "QafooLabs / php-refactoring-browser"
 
-    Note: The external tool this plugin uses is under development and in alpha state. Refactorings
-    do not contain all necessary pre-conditions and might mess up your code.
-    Check the diffs carefully before applying the patches.
+    Note: The external tool this plugin uses is under development and in alpha state.
+          Refactorings do not contain all necessary pre-conditions and might mess up your code.
+          Check the diffs carefully before applying the patches.
 
-## Dependences
+## How to use
 
-    This plugin depends on the php tool php-refactoring-browser. The latest version can be downloaded here:
-        http://qafoolabs.github.com/php-refactoring-browser/assets/refactor.phar
+    - Extract method: select a piece of code, click with the right button:
+        PHP Refactor > Extract
+            Diff will show what will change
+            Patch will apply the changes
 
 ## Future developments
 
@@ -26,6 +28,12 @@
     - [ ] [ ] Rename Class (PSR-0 aware)
     - [ ] [ ] Rename Namespace (PSR-0 aware)
     - [ ] [ ] Extract Interface
+
+## Dependencies
+
+    This plugin depends on the php tool php-refactoring-browser. The plugin ships with the latest version,
+    but if you want to update it, you can download it here:
+        http://qafoolabs.github.com/php-refactoring-browser/assets/refactor.phar
 
 ## Usefull command lines
 

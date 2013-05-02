@@ -91,6 +91,15 @@ class Refactor():
         else:
             window.show_quick_panel([yes, no], on_confirm)
 
+    def patch(self, execute, filePath):
+        patch = ''
+        if (True == execute):
+            backup = ' --no-backup-if-mismatch'
+            if (True == Prefs.backup):
+                backup = ' -b'
+            patch = '|patch' + backup + ' ' + filePath
+        return patch
+
 
 '''
     Extract a range of lines into a new method and call this method from the original location.
@@ -104,6 +113,7 @@ class Refactor():
 class ExtractCommand(sublime_plugin.TextCommand, Refactor):
 
     def run(self, edit, execute=False):
+        msg("ExtractCommand")
         window = sublime.active_window()
         sels = self.view.sel()
         for sel in sels:
@@ -113,14 +123,9 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
         return ''
 
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
-        patch = ''
-        if (True == execute):
-            backup = ' --no-backup-if-mismatch'
-            if (True == Prefs.backup):
-                backup = ' -b'
-            patch = '|patch' + backup + ' ' + filePath
+        patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " extract-method " + self.view.file_name() + " " + fromLine + "-" + toLine + " " + newFcName + patch
+        command = "php " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('extract_' + newFcName, command, execute))
@@ -135,9 +140,37 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
 '''
 
 
-class RenameLocalVariableCommand(sublime_plugin.TextCommand):
+class RenamelocalvariableCommand(sublime_plugin.TextCommand, Refactor):
+
+    def run(self, edit, execute=False):
+        msg("RenameLocalVariableCommand")
+        window = sublime.active_window()
+        sels = self.view.sel()
+        for sel in sels:
+            line = str(self.view.rowcol(sel.begin())[0] + 1)
+            selection = self.view.substr(sel).strip("$")
+            window.show_input_panel("What is the variable new name?", '', lambda newVarName: self.runCommandLine(self.view.file_name(), line, selection, newVarName.strip("$"), execute), None, None)
+        return ''
+
+    def runCommandLine(self, filePath, line, oldVarName, newVarName, execute=False):
+        patch = self.patch(execute, filePath)
+
+        command = "php " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
+
+        if ((True == execute) and (True == Prefs.confirm)):
+            self.confirm(lambda x: self.execute('rename-local-var_' + oldVarName + newVarName, command, execute))
+        else:
+            self.execute('rename-local-var_' + oldVarName + '_' + newVarName, command, execute)
+
+
+'''
+
+'''
+
+
+class OptimizeuseCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
-        msg("php refactor.phar rename-local-variable " + self.view.file_name() + " 8 $oldName $newName|colordiff")
+        msg("OptimizeUseCommand")
 
 
 '''
@@ -147,9 +180,24 @@ class RenameLocalVariableCommand(sublime_plugin.TextCommand):
 '''
 
 
-class OptimizeUseCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        msg("php refactor.phar convert-local-to-instance-variable " + self.view.file_name() + " 8 $variable|colordiff")
+class ConvertlocalvariabletoinstancevariableCommand(sublime_plugin.TextCommand, Refactor):
+
+    def run(self, edit, execute=False):
+        sels = self.view.sel()
+        for sel in sels:
+            line = str(self.view.rowcol(sel.begin())[0] + 1)
+            selection = self.view.substr(sel).strip("$")
+            self.runCommandLine(self.view.file_name(), line, selection, execute)
+
+    def runCommandLine(self, filePath, line, varName, execute=False):
+        patch = self.patch(execute, filePath)
+
+        command = "php " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch
+
+        if ((True == execute) and (True == Prefs.confirm)):
+            self.confirm(lambda x: self.execute('local-var-to-instance_' + varName, command, execute))
+        else:
+            self.execute('local-var-to-instance_' + varName, command, execute)
 
 
 '''
@@ -157,17 +205,7 @@ class OptimizeUseCommand(sublime_plugin.TextCommand):
 '''
 
 
-class ConvertLocalVariableToInstanceVariableCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        msg("ConvertLocalVariableToInstanceVariableCommand")
-
-
-'''
-
-'''
-
-
-class ConvertMagicValueToConstantCommand(sublime_plugin.TextCommand):
+class ConvertmagicvaluetoconstantCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
         msg("ConvertMagicValueToConstantCommand")
 
@@ -177,7 +215,7 @@ class ConvertMagicValueToConstantCommand(sublime_plugin.TextCommand):
 '''
 
 
-class RenameMethodCommand(sublime_plugin.TextCommand):
+class RenamemethodCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
         msg("RenameMethodCommand")
 
@@ -187,7 +225,7 @@ class RenameMethodCommand(sublime_plugin.TextCommand):
 '''
 
 
-class RenameInstanceVariableCommand(sublime_plugin.TextCommand):
+class RenameinstancevariableCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
         msg("RenameInstanceVariableCommand")
 
@@ -197,7 +235,7 @@ class RenameInstanceVariableCommand(sublime_plugin.TextCommand):
 '''
 
 
-class RenameClassCommand(sublime_plugin.TextCommand):
+class RenameclassCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
         msg("RenameClassCommand")
 
@@ -207,6 +245,6 @@ class RenameClassCommand(sublime_plugin.TextCommand):
 '''
 
 
-class RenameNamespaceCommand(sublime_plugin.TextCommand):
+class RenamenamespaceCommand(sublime_plugin.TextCommand, Refactor):
     def run(self, edit):
         msg("RenameNamespaceCommand")

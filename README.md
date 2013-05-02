@@ -16,12 +16,12 @@
 ## Future developments
 
        Developed by PHP Refactoring Browser
-       ▼   Implemented in this plugin
+       ▼   Wraped by this plugin
        ▼   ▼
     - [x] [x] Extract Method
-    - [x] [ ] Rename Local Variable
+    - [x] [x] Rename Local Variable
     - [ ] [ ] Optimize use statements
-    - [x] [ ] Convert Local Variable to Instance Variable
+    - [x] [x] Convert Local Variable to Instance Variable
     - [ ] [ ] Convert Magic Value to Constant
     - [ ] [ ] Rename Method
     - [ ] [ ] Rename Instance Variable
@@ -43,3 +43,7 @@
 
     view.run_command('extract', {'execute': False})
     view.run_command('extract', {'execute': True})
+    view.run_command('renamelocalvariable', {'execute': False})
+    view.run_command('renamelocalvariable', {'execute': true})
+    view.run_command('convertlocalvariabletoinstancevariable', {'execute': False})
+    view.run_command('convertlocalvariabletoinstancevariable', {'execute': true})

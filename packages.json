@@ -10,8 +10,8 @@
             "platforms": {
                 "*": [
                     {
-                        "version": "1.0.0",
-                        "url": "https://github.com/hgraca/sublime-text-2-php-refactor/archive/1.0.0.zip"
+                        "version": "1.2.0",
+                        "url": "https://github.com/hgraca/sublime-text-2-php-refactor/archive/1.2.0.zip"
                     }
                 ]
             }

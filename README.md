@@ -6,6 +6,19 @@
           Refactorings do not contain all necessary pre-conditions and might mess up your code.
           Check the diffs carefully before applying the patches.
 
+    ATTENTION:
+    At the moment this is not installing through Package Control, I'm looking into it.
+        In the mean while, you can install it manualy, just downloading the zip package and unpacking it to the sublime packages folder (in Linux ~/.config/sublime-text-2/Packages), or making a git clone to that location.
+
+        In Linux, type this in the command line:
+        wget https://github.com/hgraca/sublime-text-2-php-refactor/archive/master.zip
+        unzip ./master.zip -d ~/.config/sublime-text-2/Packages
+        mv ~/.config/sublime-text-2/Packages/sublime-text-2-php-refactor-master/ ~/.config/sublime-text-2/Packages/sublime-text-2-php-refactor/
+        rm -f ./master.zip
+
+        Or this:
+        git clone https://github.com/hgraca/sublime-text-2-php-refactor.git ~/.config/sublime-text-2/Packages/sublime-text-2-php-refactor
+
 ## How to use
 
     - Extract method: select a piece of code, click with the right button:

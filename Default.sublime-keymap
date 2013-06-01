@@ -1,4 +1,8 @@
 [
     { "keys": ["ctrl+shift+r", "ctrl+shift+1"], "command": "extract", "args": {"execute": false} },
-    { "keys": ["ctrl+shift+r", "ctrl+shift+2"], "command": "extract", "args": {"execute": true} }
+    { "keys": ["ctrl+shift+r", "ctrl+shift+2"], "command": "extract", "args": {"execute": true} },
+    { "keys": ["ctrl+shift+r", "ctrl+shift+3"], "command": "renamelocalvariable", "args": {"execute": false} },
+    { "keys": ["ctrl+shift+r", "ctrl+shift+4"], "command": "renamelocalvariable", "args": {"execute": true} },
+    { "keys": ["ctrl+shift+r", "ctrl+shift+5"], "command": "convertlocalvariabletoinstancevariable", "args": {"execute": false} },
+    { "keys": ["ctrl+shift+r", "ctrl+shift+6"], "command": "convertlocalvariabletoinstancevariable", "args": {"execute": true} }
 ]

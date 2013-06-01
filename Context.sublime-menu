@@ -5,7 +5,13 @@
         "children":
         [
             { "command": "extract", "args": {"execute": false}, "caption": "Extract Method - Diff" },
-            { "command": "extract", "args": {"execute": true}, "caption": "Extract Method - Patch" }
+            { "command": "extract", "args": {"execute": true}, "caption": "Extract Method - Patch" },
+            { "caption": "-" },
+            { "command": "renamelocalvariable", "args": {"execute": false}, "caption": "Rename Local Var - Diff" },
+            { "command": "renamelocalvariable", "args": {"execute": true}, "caption": "Rename Local Var - Patch" },
+            { "caption": "-" },
+            { "command": "convertlocalvariabletoinstancevariable", "args": {"execute": false}, "caption": "Convert Local Var to Instance - Diff" },
+            { "command": "convertlocalvariabletoinstancevariable", "args": {"execute": true}, "caption": "Convert Local Var to Instance - Patch" }
         ]
     }
 ]

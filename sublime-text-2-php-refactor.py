@@ -29,6 +29,7 @@ class Prefs:
         msg("Backup file before applying changes? %s" % Prefs.backup)
         Prefs.confirm = settings.get('confirm')
         msg("Confirm action before applying changes? %s" % Prefs.confirm)
+        Prefs.path_to_php = settings.get('path_to_php') if settings.get('path_to_php') else 'php'
 
 
 Prefs.load()
@@ -125,7 +126,7 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('extract_' + newFcName, command, execute))
@@ -155,7 +156,7 @@ class RenamelocalvariableCommand(sublime_plugin.TextCommand, Refactor):
     def runCommandLine(self, filePath, line, oldVarName, newVarName, execute=False):
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('rename-local-var_' + oldVarName + newVarName, command, execute))
@@ -192,7 +193,7 @@ class ConvertlocalvariabletoinstancevariableCommand(sublime_plugin.TextCommand, 
     def runCommandLine(self, filePath, line, varName, execute=False):
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('local-var-to-instance_' + varName, command, execute))

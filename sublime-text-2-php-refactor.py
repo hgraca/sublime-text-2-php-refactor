@@ -15,6 +15,9 @@ def msg(msg):
     print "[PHP Refactor] %s" % msg
 
 
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
 '''
     Plugin preferences
 '''
@@ -29,6 +32,7 @@ class Prefs:
         msg("Backup file before applying changes? %s" % Prefs.backup)
         Prefs.confirm = settings.get('confirm')
         msg("Confirm action before applying changes? %s" % Prefs.confirm)
+        Prefs.path_to_php = settings.get('path_to_php') if settings.get('path_to_php') else 'php'
 
 
 Prefs.load()
@@ -40,7 +44,7 @@ Prefs.load()
 
 
 class Refactor():
-    REFACTOR = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
+    REFACTOR = shellquote(sublime.packages_path()) + "/sublime-text-2-php-refactor/lib/refactor.phar"
 
     def execute(self, name, command, execute=False):
 
@@ -123,9 +127,10 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
         return ''
 
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('extract_' + newFcName, command, execute))
@@ -153,9 +158,10 @@ class RenamelocalvariableCommand(sublime_plugin.TextCommand, Refactor):
         return ''
 
     def runCommandLine(self, filePath, line, oldVarName, newVarName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('rename-local-var_' + oldVarName + newVarName, command, execute))
@@ -190,9 +196,10 @@ class ConvertlocalvariabletoinstancevariableCommand(sublime_plugin.TextCommand, 
             self.runCommandLine(self.view.file_name(), line, selection, execute)
 
     def runCommandLine(self, filePath, line, varName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
-        command = "php " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch
+        command = Prefs.path_to_php + " " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch
 
         if ((True == execute) and (True == Prefs.confirm)):
             self.confirm(lambda x: self.execute('local-var-to-instance_' + varName, command, execute))

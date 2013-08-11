@@ -15,6 +15,9 @@ def msg(msg):
     print "[PHP Refactor] %s" % msg
 
 
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
 '''
     Plugin preferences
 '''
@@ -41,7 +44,7 @@ Prefs.load()
 
 
 class Refactor():
-    REFACTOR = sublime.packages_path() + "/sublime-text-2-php-refactor/lib/refactor.phar"
+    REFACTOR = shellquote(sublime.packages_path()) + "/sublime-text-2-php-refactor/lib/refactor.phar"
 
     def execute(self, name, command, execute=False):
 
@@ -124,6 +127,7 @@ class ExtractCommand(sublime_plugin.TextCommand, Refactor):
         return ''
 
     def runCommandLine(self, filePath, fromLine, toLine, newFcName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
         command = Prefs.path_to_php + " " + self.REFACTOR + " extract-method " + filePath + " " + fromLine + "-" + toLine + " " + newFcName + patch
@@ -154,6 +158,7 @@ class RenamelocalvariableCommand(sublime_plugin.TextCommand, Refactor):
         return ''
 
     def runCommandLine(self, filePath, line, oldVarName, newVarName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
         command = Prefs.path_to_php + " " + self.REFACTOR + " rename-local-variable " + filePath + " " + line + " " + oldVarName + " " + newVarName + patch
@@ -191,6 +196,7 @@ class ConvertlocalvariabletoinstancevariableCommand(sublime_plugin.TextCommand, 
             self.runCommandLine(self.view.file_name(), line, selection, execute)
 
     def runCommandLine(self, filePath, line, varName, execute=False):
+        filePath = shellquote(filePath)
         patch = self.patch(execute, filePath)
 
         command = Prefs.path_to_php + " " + self.REFACTOR + " convert-local-to-instance-variable " + filePath + " " + line + " " + varName + patch

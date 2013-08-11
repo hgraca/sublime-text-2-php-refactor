@@ -1,3 +1,8 @@
+
+1.2.1
+=====
+* Fixed bug on Mac, where the filepaths with spaces were not read properly
+
 1.2.0
 =====
 * Implementation of:

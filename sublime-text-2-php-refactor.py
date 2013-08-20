@@ -5,6 +5,7 @@ import os
 import subprocess
 from os.path import basename
 
+installed_dir = os.path.basename(os.getcwd())
 
 '''
     Global function to send system messages
@@ -16,7 +17,7 @@ def msg(msg):
 
 
 def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
+    return "\"" + s.replace("\"", "\\\"") + "\""
 
 '''
     Plugin preferences
@@ -44,7 +45,7 @@ Prefs.load()
 
 
 class Refactor():
-    REFACTOR = shellquote(sublime.packages_path()) + "/sublime-text-2-php-refactor/lib/refactor.phar"
+    REFACTOR = shellquote(os.path.normpath(sublime.packages_path() + os.sep + installed_dir + os.sep + "lib" + os.sep + "refactor.phar"))
 
     def execute(self, name, command, execute=False):
 
